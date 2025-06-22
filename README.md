@@ -25,4 +25,8 @@ Where:
 - `error = actual - predicted`
 
 The process continues until either the error becomes zero or the maximum number of epochs is reached.
+
+## Output Obtained
+![Screenshot 2025-06-22 194309](https://github.com/user-attachments/assets/9d802dbf-6426-43cf-92d5-013afec4f00f)
+
   
