@@ -1,50 +1,64 @@
-import numpy as np
+def step(x, threshold=0):
+    return 1 if x >= threshold else 0
 
-class Perceptron:
-    def __init__(self, input_size, alpha=0.1, theta=0.5, epochs=100):
-        self.alpha = alpha  # learning rate
-        self.theta = theta  # threshold
-        self.epochs = epochs
-        self.weights = np.random.rand(input_size + 1)  # +1 for bias
+def train_perceptron(gate_name, dataset, learning_rate=0.1, max_epochs=100):
+    w1, w2, bias = 0.0, 0.0, 0.0
+    print(f"\nTraining Perceptron for {gate_name} Gate")
+    print("Initial weights: w1 = {:.2f}, w2 = {:.2f}, bias = {:.2f}".format(w1, w2, bias))
+    
+    for epoch in range(max_epochs):
+        error_flag = False
+        print(f"\nEpoch {epoch+1}")
+        
+        for x1, x2, target in dataset:
+            y_in = x1 * w1 + x2 * w2 + bias
+            output = step(y_in)
+            error = target - output
+            
+            if error != 0:
+                # Update weights and bias
+                w1 += learning_rate * error * x1
+                w2 += learning_rate * error * x2
+                bias += learning_rate * error
+                error_flag = True
+            
+            print(f"Input: [{x1}, {x2}] | Target: {target} | Output: {output} | Updated weights: w1 = {w1:.2f}, w2 = {w2:.2f}, bias = {bias:.2f}")
+        
+        if not error_flag:
+            print("\nTraining converged.")
+            break
+    else:
+        print("\nReached maximum epochs without full convergence.")
+    
+    # Final evaluation
+    print("\nFinal weights:")
+    print("w1 = {:.2f}, w2 = {:.2f}, bias = {:.2f}".format(w1, w2, bias))
+    
+    # Accuracy check
+    correct = 0
+    for x1, x2, target in dataset:
+        output = step(x1 * w1 + x2 * w2 + bias)
+        if output == target:
+            correct += 1
+    accuracy = correct / len(dataset) * 100
+    print(f"Final Classification Accuracy: {accuracy:.2f}%\n")
+    print("-" * 50)
 
-    def activation(self, x):
-        # Step function
-        return 1 if x >= self.theta else 0
+# Define datasets
+and_dataset = [
+    (0, 0, 0),
+    (0, 1, 0),
+    (1, 0, 0),
+    (1, 1, 1)
+]
 
-    def predict(self, inputs):
-        # Add bias input as 1
-        inputs = np.insert(inputs, 0, 1)
-        weighted_sum = np.dot(inputs, self.weights)
-        return self.activation(weighted_sum)
+or_dataset = [
+    (0, 0, 0),
+    (0, 1, 1),
+    (1, 0, 1),
+    (1, 1, 1)
+]
 
-    def train(self, X, y):
-        # Insert bias input as 1 in all inputs
-        X = np.insert(X, 0, 1, axis=1)
-
-        for epoch in range(self.epochs):
-            total_error = 0
-            for i in range(len(X)):
-                output = self.activation(np.dot(X[i], self.weights))
-                error = y[i] - output
-                self.weights += self.alpha * error * X[i]
-                total_error += abs(error)
-            if total_error == 0:
-                break
-
-# Example usage:
-# Sample data: OR gate
-X = np.array([
-    [0, 0],
-    [0, 1],
-    [1, 0],
-    [1, 1]
-])
-
-y = np.array([0, 1, 1, 1])
-
-model = Perceptron(input_size=2, alpha=0.1, theta=0.5, epochs=10)
-model.train(X, y)
-
-# Test
-for sample in X:
-    print(f"Input: {sample}, Predicted: {model.predict(sample)}")
+# Train on both gates
+train_perceptron("AND", and_dataset)
+train_perceptron("OR", or_dataset)
